@@ -1,34 +1,36 @@
-﻿@page "/game"
+﻿@using System.Linq
+@using System.Collections.Generic
+@page "/game"
 
 <h3>MemoryGame</h3>
 
-<table>
-    <tr>
-        <Card Value="1" />
-        <Card Value="2" />
-        <Card Value="3" />
-        <Card Value="4" />
-    </tr>
-    <tr>
-        <Card Value="5" />
-        <Card Value="6" />
-        <Card Value="7" />
-        <Card Value="8" />
-    </tr>
-    <tr>
-        <Card Value="1" />
-        <Card Value="2" />
-        <Card Value="3" />
-        <Card Value="4" />
-    </tr>
-    <tr>
-        <Card Value="5" />
-        <Card Value="6" />
-        <Card Value="7" />
-        <Card Value="8" />
-    </tr>
-</table>
+@foreach(var symbol in cardValues)
+{
+    <Card Value="@symbol" />
+}
 
 @code {
+    private readonly IEnumerable<string> symbols = new string[] { "❤", "🍕", "🐱‍👤", "🐰", "💾", "🙈", "🏎", "🍩" };
+    private IEnumerable<string> cardValues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var symbolsQueue = 
+        cardValues = Shuffle(symbols.Concat(symbols).ToList());
+    }
+
+    static IList<T> Shuffle<T>(IList<T> list)  
+    {  
+        var rng = new Random();
+        int n = list.Count;  
+        while (n > 1) {  
+            n--;  
+            int k = rng.Next(n + 1);  
+            T value = list[k];  
+            list[k] = list[n];  
+            list[n] = value;  
+        }  
+        return list;
+    }
 
 }
