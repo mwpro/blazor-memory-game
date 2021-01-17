@@ -6,8 +6,9 @@
 
 @foreach(var symbol in cardValues)
 {
-    <Card Value="@symbol" />
+    <Card Value="@symbol" OnClickCallback="@OnCardClick" />
 }
+
 
 @code {
     private readonly IEnumerable<string> symbols = new string[] { "❤", "🍕", "🐱‍👤", "🐰", "💾", "🙈", "🏎", "🍩" };
@@ -15,8 +16,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var symbolsQueue = 
         cardValues = Shuffle(symbols.Concat(symbols).ToList());
+    }
+
+    private void OnCardClick(MouseEventArgs args) {
+
     }
 
     static IList<T> Shuffle<T>(IList<T> list)  
