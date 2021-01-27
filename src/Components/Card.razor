@@ -1,6 +1,6 @@
-﻿<div style="width: 25%; float: left; height: 100px; border: 1px solid black; font-size: 30px; text-align: center;" @onclick="Flip">
-    @if (IsVisible) {
-        @Value
+﻿<div style="width: 25%; float: left; height: 100px; border: 1px solid black; font-size: 30px; text-align: center;" @onclick="OnClickCallback">
+    @if (CardData.IsVisible) {
+        @CardData.Value
     } else {
         @:?
     }
@@ -8,15 +8,8 @@
 
 @code {
     [Parameter]
-    public string Value { get; set; }
-
-    public bool IsVisible { get; set; } = false;
+    public CardData CardData { get; set; }
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnClickCallback { get; set; }
-
-    private async Task Flip(MouseEventArgs args) {
-        IsVisible = !IsVisible;
-        await OnClickCallback.InvokeAsync(args);
-    }
 }

@@ -4,36 +4,70 @@
 
 <h3>MemoryGame</h3>
 
-@foreach(var symbol in cardValues)
+@* @foreach(var symbol in cardValues)
 {
-    <Card Value="@symbol" OnClickCallback="@OnCardClick" />
+    <Card Value="@symbol" />
+} *@
+
+@if (cards.IsGameWon())
+{
+    <h1>Gratulacje, wygrałeś!</h1>
 }
 
+@for (var i = 0; i < cards.Count(); i++) {
+    var i2 = i;
+    <Card CardData="@cards[i2]" OnClickCallback="@(e => OnCardClick(cards[i2]))"  />
+}
 
 @code {
     private readonly IEnumerable<string> symbols = new string[] { "❤", "🍕", "🐱‍👤", "🐰", "💾", "🙈", "🏎", "🍩" };
     private IEnumerable<string> cardValues;
+    private IList<CardData> cards;
 
     protected override async Task OnInitializedAsync()
     {
         cardValues = Shuffle(symbols.Concat(symbols).ToList());
+        cards = cardValues.Select(x => new CardData(x)).ToList();
+    }
+    
+    private void OnCardClick(CardData cardData)
+    {
+        if (cards.IsGameWon())
+            return;
+
+        if (!cards.CanFlipNextCard())
+        {
+            // cannot flip - already 2 cards visible
+            var cardsToHide = cards.FlippedCards();
+            foreach (var card in cardsToHide)
+            {
+                card.Hide();
+            }
+        }
+
+        cardData.Flip();
+
+        var cardsWithSymbol = cards.CardsWithSymbol(cardData.Value);
+        if (cardsWithSymbol.AreAllCardsFlipped())
+        {
+            foreach (var card in cardsWithSymbol)
+            {
+                card.Reveal();
+            }
+        }
     }
 
-    private void OnCardClick(MouseEventArgs args) {
-
-    }
-
-    static IList<T> Shuffle<T>(IList<T> list)  
-    {  
+    static IList<T> Shuffle<T>(IList<T> list)
+    {
         var rng = new Random();
-        int n = list.Count;  
-        while (n > 1) {  
-            n--;  
-            int k = rng.Next(n + 1);  
-            T value = list[k];  
-            list[k] = list[n];  
-            list[n] = value;  
-        }  
+        int n = list.Count;
+        while (n > 1) {
+            n--;
+            int k = rng.Next(n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
         return list;
     }
 
