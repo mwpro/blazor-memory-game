@@ -1,5 +1,6 @@
 ﻿@using System.Linq
 @using System.Collections.Generic
+@using System.Threading
 @page "/game"
 
 <h3>MemoryGame</h3>
@@ -13,6 +14,7 @@
 {
     <h1>Gratulacje, wygrałeś!</h1>
 }
+<h2>Czas gry @_gameTime</h2>
 
 @for (var i = 0; i < cards.Count(); i++) {
     var i2 = i;
@@ -23,17 +25,35 @@
     private readonly IEnumerable<string> symbols = new string[] { "❤", "🍕", "🐱‍👤", "🐰", "💾", "🙈", "🏎", "🍩" };
     private IEnumerable<string> cardValues;
     private IList<CardData> cards;
+    private TimeSpan _gameTime;
+    private bool isTimeRunning = false;
 
     protected override async Task OnInitializedAsync()
     {
+        _gameTime = new TimeSpan();
         cardValues = Shuffle(symbols.Concat(symbols).ToList());
         cards = cardValues.Select(x => new CardData(x)).ToList();
     }
-    
+
     private void OnCardClick(CardData cardData)
     {
         if (cards.IsGameWon())
             return;
+
+        if (!isTimeRunning)
+        {
+            isTimeRunning = true;
+            Task.Run(async () =>
+            {
+                while (isTimeRunning)
+                {
+                    _gameTime = _gameTime.Add(TimeSpan.FromSeconds(1));
+                    StateHasChanged();
+                    await Task.Delay(1000);
+                }
+            });
+
+        }
 
         if (!cards.CanFlipNextCard())
         {
@@ -53,6 +73,10 @@
             foreach (var card in cardsWithSymbol)
             {
                 card.Reveal();
+            }
+            if (cards.IsGameWon())
+            {
+                isTimeRunning = false;
             }
         }
     }
